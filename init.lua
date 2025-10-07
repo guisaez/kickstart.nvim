@@ -18,6 +18,19 @@ vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 vim.o.relativenumber = true
 
+vim.o.tabstop = 4
+vim.o.softtabstop = 4
+vim.o.shiftwidth = 4
+vim.o.expandtab = true
+
+vim.opt.smartindent = true
+
+-- Disable highlight search. Disable persistent highlighting
+vim.opt.hlsearch = false
+
+-- Enable incremental search. It will jump to the first match as you are typing
+vim.optincsearch = true
+
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
 
@@ -47,7 +60,7 @@ vim.o.smartcase = true
 vim.o.signcolumn = 'yes'
 
 -- Decrease update time
-vim.o.updatetime = 250
+vim.o.updatetime = 50
 
 -- Decrease mapped sequence wait time
 vim.o.timeoutlen = 300
@@ -79,7 +92,7 @@ vim.o.scrolloff = 10
 -- if performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
 -- instead raise a dialog asking if you wish to save the current file(s)
 -- See `:help 'confirm'`
-vim.o.confirm = false
+vim.o.confirm = true
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -88,11 +101,18 @@ vim.o.confirm = false
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
--- TODO: Experimental (Go back to NORMAL mode after pressing `jj`
-vim.keymap.set('i', 'jj', '<Esc>')
+-- Delete witout saving to register
+vim.keymap.set({ 'n', 'v' }, '<leadder>d', '"_d')
 
 -- Copy to the clipboard
-vim.keymap.set('v', '<leader>y', '"+y')
+vim.keymap.set({ 'n', 'v' }, '<leader>y', '"+y')
+vim.keymap.set('n', '<leader>Y', '"+Y')
+
+-- LOL
+vim.keymap.set('i', '<C-c>', '<Esc>')
+
+-- Format buffer
+vim.keymap.set('n', '<leader>f', vim.lsp.buf.format)
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
@@ -171,7 +191,7 @@ rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
-  'numToStr/Comment.nvim',
+  -- 'numToStr/Comment.nvim',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -605,6 +625,7 @@ require('lazy').setup({
         gopls = {},
         --
         erlangls = {},
+        -- elp = {},
 
         lua_ls = {
           -- cmd = { ... },
@@ -678,7 +699,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, elr = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
@@ -771,6 +792,9 @@ require('lazy').setup({
       },
 
       completion = {
+        -- I had to add this line because autocompletion for 'erlangls' and 'elp' would be off.
+        accept = { auto_brackets = { enabled = false } },
+
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
         documentation = { auto_show = false, auto_show_delay_ms = 500 },
