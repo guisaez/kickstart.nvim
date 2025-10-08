@@ -366,12 +366,16 @@ require('lazy').setup({
       --
       -- Show all files within the directory
       vim.keymap.set('n', '<leader>sF', function()
-        builtin.find_files { hidden = true }
-      end, { desc = '[S]earch All [F]iles' })
+        builtin.find_files { hidden = false, no_ignore = true, no_ignore_parent = true }
+      end, { desc = '[S]earch All [F]iles (Ignored included)' })
       --
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[Search] [F]iles' })
-      --
-      vim.keymap.set('n', '<leader>sf', builtin.git_files, { desc = '[S]earch [G]it [F]iles' })
+      vim.keymap.set('n', '<leader>sf', function()
+        local ok = pcall(builtin.git_files, { show_untracked = true })
+        if not ok then
+          builtin.find_files()
+        end
+      end, { desc = '[S]earch [F]iles (Git with fallback)' })
+      -- vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[Search] [F]iles' })
       --
       -- Grep
       vim.keymap.set('n', '<leader>ps', function()
@@ -716,7 +720,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true, elr = true }
+        local disable_filetypes = { c = true, cpp = true, erl = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
@@ -851,7 +855,7 @@ require('lazy').setup({
       ---@diagnostic disable-next-line: missing-fields
       require('tokyonight').setup {
         styles = {
-          comments = { italic = false }, -- Disable italics in comments
+          comments = { italic = true },
           sidebars = { transparent = true },
         },
       }
